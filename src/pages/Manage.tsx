@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, Trash2, Edit2, Save, X, Trash } from "lucide-react";
 import Navigation from '@/components/Navigation';
+import ContentWrapper from '@/components/ContentWrapper';
 
 const Manage = () => {
   const { cards, addCard, updateCard, deleteCard, deleteMultipleCards, clearAllCards } = useCards();
@@ -45,24 +46,29 @@ const Manage = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-4 min-h-screen space-y-8">
+    <ContentWrapper>
       <Navigation isBar />
 
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-primary">Manage Cards</h1>
-        <div className="space-x-2">
+        <h1 className="text-3xl font-bold text-primary my-4">Manage Cards</h1>
+        <div className="gap-2 flex flex-col content-between sm:flex-row">
           <Button variant="outline" onClick={() => setIsAdding(!isAdding)}>
-            {isAdding ? <X className="mr-2" /> : <Plus className="mr-2" />}
-            {isAdding ? "Cancel" : "Add Card"}
+            {isAdding ? <X className="mr-2 text-xxl" /> : <Plus className="mr-2 text-xxl" />}
+            <span className='hidden sm:visible'>
+              {isAdding ? "Cancel" : "Add Card"}
+            </span>
           </Button>
           <Button variant="destructive" onClick={clearAllCards}>
-            <Trash className="mr-2" /> Clear All
+            <Trash className="mr-2" />
+            <span className='hidden sm:visible'>
+              Clear All
+            </span>
           </Button>
         </div>
       </div>
 
       {isAdding && (
-        <Card className="border-primary/50 bg-primary/5">
+        <Card className="border-primary/50 bg-primary/5 mb-4">
           <CardHeader>
             <CardTitle>New Card</CardTitle>
           </CardHeader>
@@ -109,7 +115,7 @@ const Manage = () => {
         </div>
       )}
 
-      <div className="space-y-4">
+      <div className="space-y-4 mb-4">
         {cards.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">No cards found. Add your first card above!</div>
         ) : (
@@ -170,7 +176,7 @@ const Manage = () => {
           ))
         )}
       </div>
-    </div>
+    </ContentWrapper>
   );
 };
 

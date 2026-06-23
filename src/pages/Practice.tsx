@@ -3,111 +3,96 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useCards, Card as CardType } from "@/hooks/use-cards";
 import PracticeCanvas from "@/components/PracticeCanvas";
-import { RefreshCw, Shuffle, Eye, EyeOff } from "lucide-react";
+import { RefreshCw, Shuffle, Eye, EyeOff, LucideEye, ScanEye, BookA, Book } from "lucide-react";
 import Navigation from '@/components/Navigation';
+import ContentWrapper from '@/components/ContentWrapper';
+import NoCardsFound from './NoCardsFound';
+import WordCard from './WordCard';
 
 const Practice = () => {
-  const { cards, isLoaded } = useCards();
-  const [currentIndex, setCurrentIndex] = useState<number>(-1);
-  const [showMeaning, setShowMeaning] = useState(false);
-  const [deck, setDeck] = useState<number[]>([]);
+    const { cards, isLoaded } = useCards();
+    const [currentIndex, setCurrentIndex] = useState<number>(-1);
+    const [showMeaning, setShowMeaning] = useState(false);
+    const [deck, setDeck] = useState<number[]>([]);
+    const [showMeaningFirst, setshowMeaningFirst] = useState(false);
 
-  useEffect(() => {
-    if (isLoaded && cards.length > 0) {
-      const initialDeck = [...cards.keys()];
-      setDeck(initialDeck);
-      setCurrentIndex(0);
+    useEffect(() => {
+        if (isLoaded && cards.length > 0) {
+            const initialDeck = [...cards.keys()];
+            setDeck(initialDeck);
+            setCurrentIndex(0);
+        }
+    }, [isLoaded, cards]);
+
+    const nextCard = () => {
+        if (deck.length === 0) return;
+        let nextIdx = currentIndex + 1;
+        if (nextIdx >= deck.length) {
+            const newDeck = [...cards.keys()].sort(() => Math.random() - 0.5);
+            setDeck(newDeck);
+            nextIdx = 0;
+        }
+        setCurrentIndex(nextIdx);
+        setShowMeaning(false);
+    };
+
+    const shuffleDeck = () => {
+        const newDeck = [...cards.keys()].sort(() => Math.random() - 0.5);
+        setDeck(newDeck);
+        setCurrentIndex(0);
+        setShowMeaning(false);
+    };
+
+    const toggleShowMeaningFirst = () => {
+        setshowMeaningFirst(!showMeaningFirst)
     }
-  }, [isLoaded, cards]);
 
-  const nextCard = () => {
-    if (deck.length === 0) return;
-    let nextIdx = currentIndex + 1;
-    if (nextIdx >= deck.length) {
-      const newDeck = [...cards.keys()].sort(() => Math.random() - 0.5);
-      setDeck(newDeck);
-      nextIdx = 0;
-    }
-    setCurrentIndex(nextIdx);
-    setShowMeaning(false);
-  };
+    const currentCard = deck[currentIndex] !== undefined ? cards[deck[currentIndex]] : null;
 
-  const shuffleDeck = () => {
-    const newDeck = [...cards.keys()].sort(() => Math.random() - 0.5);
-    setDeck(newDeck);
-    setCurrentIndex(0);
-    setShowMeaning(false);
-  };
+    if (!isLoaded) return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
 
+    return (
+        <ContentWrapper>
+            <Navigation isBar />
 
+            <div className="flex justify-between items-center mb-8 gap-x-2">
+                <h1 className="text-3xl font-bold text-white">Practice</h1>
+                <div className="text-sm text-slate-300 mt-2">
+                    {cards.length > 0 ? `${currentIndex + 1} / ${cards.length}` : 'No cards available'}
+                </div>
+            </div>
 
-  const currentCard = deck[currentIndex] !== undefined ? cards[deck[currentIndex]] : null;
+            {cards.length === 0 ?
+                (<NoCardsFound />)
+                :
+                (<div className="grid md:grid-cols-2 gap-6 w-full">
+                    <WordCard card={currentCard} showMeaning={showMeaning} />
 
-  if (!isLoaded) return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
-
-  return (
-    <div className="max-w-2xl mx-auto p-4 min-h-screen flex flex-col">
-      <Navigation isBar />
-
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-primary">Practice</h1>
-        <div className="text-sm text-muted-foreground">
-          {cards.length > 0 ? `${currentIndex + 1} / ${cards.length}` : 'No cards available'}
-        </div>
-      </div>
-
-      {cards.length === 0 ? (
-        <div className="flex-1 flex flex-col items-center justify-center text-center space-y-4">
-          <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center">
-            <RefreshCw className="w-10 h-10 text-muted-foreground" />
-          </div>
-          <p className="text-xl font-medium">No cards to practice!</p>
-          <p className="text-muted-foreground">Go to Manage to add some new cards.</p>
-        </div>
-      ) : (
-        <div className="flex-1 flex flex-col space-y-6">
-          <Card className="shadow-xl border-2 transition-all duration-300">
-            <CardContent className="p-12 flex flex-col items-center justify-center min-h-[300px] text-center">
-              {currentCard && (
-                <>
-                  <div className="text-4xl font-bold mb-6">{currentCard.word}</div>
-                  {showMeaning && (
-                    <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
-                      <div className="text-2xl text-primary font-medium">{currentCard.meaning}</div>
-                      {currentCard.context && (
-                        <div className="text-muted-foreground italic px-4">"{currentCard.context}"</div>
-                      )}
+                    <div className='grid gap-y-4'>
+                        <PracticeCanvas nextCard={nextCard} shuffleDeck={shuffleDeck}>
+                            <>
+                                <Button className='w-1/5'
+                                    variant='outline'
+                                    title={showMeaningFirst ? 'Show Meaning' : 'Show Word'}
+                                    aria-label='Switch Places Meaning and Word'
+                                    onClick={toggleShowMeaningFirst}
+                                    size='sm'>
+                                    {showMeaningFirst ? (
+                                        <Book />
+                                    ) : (
+                                        <BookA />
+                                    )}
+                                </Button>
+                                <Button className='w-1/5' title={showMeaning ? "Hide Meaning" : "Show Meaning"} variant="secondary" size='sm' onClick={() => setShowMeaning(!showMeaning)}>
+                                    {showMeaning ? <EyeOff /> : <Eye />}
+                                </Button>
+                            </>
+                        </PracticeCanvas>
                     </div>
-                  )}
-                </>
-              )}
-            </CardContent>
-          </Card>
-
-          <div className="grid grid-cols-2 gap-4">
-            <Button variant="outline" className="h-12 text-lg" onClick={() => setShowMeaning(!showMeaning)}>
-              {showMeaning ? <EyeOff className="mr-2" /> : <Eye className="mr-2" />}
-              {showMeaning ? "Hide Meaning" : "Show Meaning"}
-            </Button>
-
-            <Button variant="outline" className="h-12 text-lg" onClick={shuffleDeck}>
-              <Shuffle className="mr-2" /> Random
-            </Button>
-          </div>
-
-          <div className="space-y-4">
-            <PracticeCanvas />
-          </div>
-
-          <div className="pt-4">
-            <Button className="w-full h-14 text-xl font-bold" onClick={nextCard}>
-              Next Card
-            </Button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+                </div>
+            )}
+        </ContentWrapper>
+    );
 };
 
 export default Practice;

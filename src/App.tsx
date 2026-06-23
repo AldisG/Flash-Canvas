@@ -14,7 +14,6 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
-      <Sonner />
       <BrowserRouter future={{
         v7_relativeSplatPath: true,
       }}>

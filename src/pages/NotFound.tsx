@@ -1,6 +1,7 @@
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import Navigation from "@/components/Navigation";
+import ContentWrapper from "@/components/ContentWrapper";
 
 const NotFound = () => {
   const location = useLocation();
@@ -13,7 +14,7 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+    <ContentWrapper>
       <Navigation isBar/>
       
       <div className="text-center">
@@ -23,7 +24,7 @@ const NotFound = () => {
           Return to Home
         </a>
       </div>
-    </div>
+    </ContentWrapper>
   );
 };
 

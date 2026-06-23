@@ -1,17 +1,18 @@
+import ContentWrapper from "@/components/ContentWrapper";
 import Navigation from "@/components/Navigation";
 
 const Index = () => {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50">
-      <div className="text-center space-y-8 max-w-md w-full px-4">
+    <ContentWrapper>
+      <div className="text-center space-y-8 max-w-md w-full py-4">
         <div className="space-y-2">
-          <h1 className="text-5xl font-extrabold tracking-tight text-primary">LingoFlow</h1>
-          <p className="text-xl text-muted-foreground">Simple, effective, offline-first learning.</p>
+          <h1 className="text-5xl font-extrabold tracking-tight text-white">LingoFlow</h1>
+          <p className="text-xl text-slate-300">Practice your wrods.</p>
         </div>
 
         <Navigation />
       </div>
-    </div>
+    </ContentWrapper>
   );
 };
 

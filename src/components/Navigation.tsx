@@ -12,18 +12,18 @@ const Navigation = ({ isBar }: NavigationProps) => {
     const { pathname } = useLocation();
 
     return (
-        <div className="grid grid-cols-1 gap-4">
+        <div className="grid grid-cols-1 gap-4 my-4">
             {isBar ? (
-                <div className="flex gap-x-2">
+                <div className="flex gap-x-4">
                     <Button
-                        variant="ghost"
-                        className={`px-2 py-1 text-sm shadow-md ${pathname == '/practice' && 'bg-slate-200'}`}
+                        variant="default"
+                        className={`px-2 py-1 text-sm shadow-md ${pathname == '/practice' && 'bg-cyan-900'}`}
                         onClick={() => { navigate('/practice') }}>
                         Practice
                     </Button>
                     <Button
-                        variant="ghost"
-                        className={`px-2 py-1 text-sm shadow-md ${pathname == '/manage' && 'bg-slate-200'}`}
+                        variant="default"
+                        className={`px-2 py-1 text-sm shadow-md ${pathname == '/manage' && 'bg-cyan-900'}`}
                         onClick={() => navigate('/manage')}>
                         Manage Cards
                     </Button>
