@@ -1,1 +1,2 @@
-# Welcome to your Dyad app
+# React app
+npm run dev
