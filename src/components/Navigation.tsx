@@ -17,13 +17,13 @@ const Navigation = ({ isBar }: NavigationProps) => {
                 <div className="flex gap-x-4">
                     <Button
                         variant="default"
-                        className={`px-2 py-1 text-sm shadow-md ${pathname == '/practice' && 'bg-cyan-900'}`}
+                        className={`px-2 py-1 text-sm shadow-md ${pathname == '/practice' && 'bg-cyan-800'}`}
                         onClick={() => { navigate('/practice') }}>
                         Practice
                     </Button>
                     <Button
                         variant="default"
-                        className={`px-2 py-1 text-sm shadow-md ${pathname == '/manage' && 'bg-cyan-900'}`}
+                        className={`px-2 py-1 text-sm shadow-md ${pathname == '/manage' && 'bg-cyan-800'}`}
                         onClick={() => navigate('/manage')}>
                         Manage Cards
                     </Button>

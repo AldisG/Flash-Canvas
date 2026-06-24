@@ -55,7 +55,7 @@ const Practice = () => {
         <ContentWrapper>
             <Navigation isBar />
 
-            <div className="flex justify-between items-center mb-8 gap-x-2">
+            <div className="flex justify-between items-center mb-4 md:mb-8 gap-x-2">
                 <h1 className="text-3xl font-bold text-white">Practice</h1>
                 <div className="text-sm text-slate-300 mt-2">
                     {cards.length > 0 ? `${currentIndex + 1} / ${cards.length}` : 'No cards available'}
@@ -66,7 +66,7 @@ const Practice = () => {
                 (<NoCardsFound />)
                 :
                 (<div className="grid md:grid-cols-2 gap-6 w-full">
-                    <WordCard card={currentCard} showMeaning={showMeaning} />
+                    <WordCard card={currentCard} showMeaning={showMeaning} showMeaningFirst={showMeaningFirst} />
 
                     <div className='grid gap-y-4'>
                         <PracticeCanvas nextCard={nextCard} shuffleDeck={shuffleDeck}>

@@ -103,7 +103,7 @@ const PracticeCanvas = ({nextCard, children, shuffleDeck}: Props) => {
         <div className="w-full space-y-2">
             <div className={`
                 flex items-center 
-                mb-4 gap-x-2 
+                mb-6 gap-x-2 
 
                 ${children && 'justify-evenly'}`
             }>
@@ -135,7 +135,7 @@ const PracticeCanvas = ({nextCard, children, shuffleDeck}: Props) => {
                     onTouchStart={startDrawing}
                     onTouchMove={draw}
                     onTouchEnd={stopDrawing}
-                    className="w-full h-auto md:h-96 touch-none cursor-crosshair"
+                    className="w-full h-[calc(45vh-4rem)] md:h-[calc(70vh-8rem+2px)] touch-none cursor-crosshair"               
                 />
             </div>
         </div>

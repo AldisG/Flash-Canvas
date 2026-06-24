@@ -4,11 +4,12 @@ import React, { useEffect, useState } from 'react';
 interface Props {
     card: Card;
     showMeaning: boolean;
+    showMeaningFirst: boolean;
 }
 
 const ANIMATION_DURATION = 100;
 
-const WordCard: React.FC<Props> = ({ card, showMeaning }) => {
+const WordCard: React.FC<Props> = ({ card, showMeaning, showMeaningFirst }) => {
     const [hidden, setHidden] = useState(!showMeaning);
 
     useEffect(() => {
@@ -25,23 +26,32 @@ const WordCard: React.FC<Props> = ({ card, showMeaning }) => {
         return () => clearTimeout(timer);
     }, [showMeaning]);
 
-    const handleMeaningAnimation = `flex justify-evenly gap-x-4 items-end flex-wrap w-full content-center
-              duration-${ANIMATION_DURATION}
-              ${hidden ? 'hidden pointer-events-none' : ''}
-              ${showMeaning
-            ? 'animate-in fade-in slide-in-from-top-2'
-            : 'animate-out fade-out slide-in-from-bottom-2'
-        }`
+    const wordMeaningWrapperClasses = `text-center
+        w-full h-auto p-12 rounded-xl
+        md:h-[calc(70vh-4rem)]
+        touch-none cursor-crosshair
+        flex flex-col
+        justify-center gap-4
+        overflow-auto
+        bg-white`
+
+    const handleMeaningAnimation = `
+        duration-${ANIMATION_DURATION}
+        ${hidden ? 'hidden pointer-events-none' : ''}
+        ${showMeaning
+        ? 'animate-in fade-in slide-in-from-top-2'
+        : 'animate-out fade-out slide-in-from-bottom-2'
+    }`
 
     return (
-        <div className="grid sm:grid-cols-2 justify-evenly gap-x-4 p-12 rounded-xl overflow-hidden bg-white">
+        <div className={wordMeaningWrapperClasses}>
             {card && (
                 <>
-                    <div className="text-4xl font-bold">{card.word}</div>
+                    <div className="text-4xl font-bold content-center">{showMeaningFirst ? card.meaning : card.word}</div>
 
-                    <div className={handleMeaningAnimation}>
+                    <div className={`w-full flex flex-col justify-center ${handleMeaningAnimation}`}>
                         <div className="text-2xl text-primary font-medium">
-                            {card.meaning}
+                            {showMeaningFirst ? card.word : card.meaning }
                         </div>
 
                         {card.context && (
