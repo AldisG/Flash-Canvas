@@ -10,7 +10,7 @@ type Props = {
 
 const PracticeCanvas = ({nextCard, children, shuffleDeck}: Props) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const [isDrawing, setIsDrawing] = useState(false);
+    // const [isDrawing, setIsDrawing] = useState(false);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -37,46 +37,89 @@ const PracticeCanvas = ({nextCard, children, shuffleDeck}: Props) => {
         return () => window.removeEventListener('resize', resizeCanvas);
     }, []);
 
-    const startDrawing = (e: React.MouseEvent | React.TouchEvent) => {
-        setIsDrawing(true);
-        draw(e);
-    };
+    const isDrawing = useRef(false); // ← ref, not state
 
-    const stopDrawing = () => {
-        setIsDrawing(false);
-        const canvas = canvasRef.current;
-        if (canvas) {
-            const ctx = canvas.getContext('2d');
-            ctx?.beginPath();
+    const getCoords = (e: React.MouseEvent | React.TouchEvent, rect: DOMRect) => {
+        if ('touches' in e) {
+            return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
         }
+        return { x: e.clientX - rect.left, y: e.clientY - rect.top };
     };
 
-    const draw = (e: React.MouseEvent | React.TouchEvent) => {
-        if (!isDrawing) return;
+    const startDrawing = (e: React.MouseEvent | React.TouchEvent) => {
         const canvas = canvasRef.current;
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
-        const rect = canvas.getBoundingClientRect();
-        let clientX, clientY;
+        isDrawing.current = true;                          // instant, no async gap
 
-        if ('touches' in e) {
-            clientX = e.touches[0].clientX;
-            clientY = e.touches[0].clientY;
-        } else {
-            clientX = e.clientX;
-            clientY = e.clientY;
-        }
+        const { x, y } = getCoords(e, canvas.getBoundingClientRect());
+        ctx.beginPath();
+        ctx.moveTo(x, y);                                  // path starts exactly here
+    };
 
-        const x = clientX - rect.left;
-        const y = clientY - rect.top;
+    const draw = (e: React.MouseEvent | React.TouchEvent) => {
+        if (!isDrawing.current) return;                    // ref check, always current
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
 
+        const { x, y } = getCoords(e, canvas.getBoundingClientRect());
         ctx.lineTo(x, y);
         ctx.stroke();
         ctx.beginPath();
         ctx.moveTo(x, y);
     };
+
+    const stopDrawing = () => {
+        isDrawing.current = false;
+        const canvas = canvasRef.current;
+        if (canvas) canvas.getContext('2d')?.beginPath();
+    };
+
+    // BACKUP BELLOW
+    // const startDrawing = (e: React.MouseEvent | React.TouchEvent) => {
+    //     setIsDrawing(true);
+    //     draw(e);
+    // };
+
+    // const stopDrawing = () => {
+    //     setIsDrawing(false);
+    //     const canvas = canvasRef.current;
+    //     if (canvas) {
+    //         const ctx = canvas.getContext('2d');
+    //         ctx?.beginPath();
+    //     }
+    // };
+
+    // const draw = (e: React.MouseEvent | React.TouchEvent) => {
+    //     if (!isDrawing) return;
+    //     const canvas = canvasRef.current;
+    //     if (!canvas) return;
+    //     const ctx = canvas.getContext('2d');
+    //     if (!ctx) return;
+
+    //     const rect = canvas.getBoundingClientRect();
+    //     let clientX, clientY;
+
+    //     if ('touches' in e) {
+    //         clientX = e.touches[0].clientX;
+    //         clientY = e.touches[0].clientY;
+    //     } else {
+    //         clientX = e.clientX;
+    //         clientY = e.clientY;
+    //     }
+
+    //     const x = clientX - rect.left;
+    //     const y = clientY - rect.top;
+
+    //     ctx.lineTo(x, y);
+    //     ctx.stroke();
+    //     ctx.beginPath();
+    //     ctx.moveTo(x, y);
+    // };
 
     const clearCanvas = () => {
         const canvas = canvasRef.current
