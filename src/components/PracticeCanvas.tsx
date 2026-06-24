@@ -1,6 +1,7 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Eraser, Shuffle } from "lucide-react";
+import { getStroke } from 'perfect-freehand';
 
 type Props = {
     nextCard: Function;
@@ -8,178 +9,105 @@ type Props = {
     shuffleDeck: Function;
 }
 
-const PracticeCanvas = ({nextCard, children, shuffleDeck}: Props) => {
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-    // const [isDrawing, setIsDrawing] = useState(false);
+function getSvgPathFromStroke(stroke: number[][]): string {
+    if (!stroke.length) return '';
+    const d = stroke.reduce(
+        (acc: (string | number)[], [x0, y0], i, arr) => {
+            const [x1, y1] = arr[(i + 1) % arr.length];
+            acc.push(x0, y0, (x0 + x1) / 2, (y0 + y1) / 2);
+            return acc;
+        },
+        ['M', ...stroke[0], 'Q']
+    );
+    d.push('Z');
+    return d.join(' ');
+}
 
-    useEffect(() => {
-        const canvas = canvasRef.current;
+const PracticeCanvas = ({ nextCard, children, shuffleDeck }: Props) => {
+    const svgRef = useRef<SVGSVGElement>(null);
+    const [strokes, setStrokes] = useState<number[][][]>([]);
+    const currentStroke = useRef<number[][]>([]);
+    const [, forceUpdate] = useState(0);
 
-        if (!canvas) return;
+    const getPoint = (e: PointerEvent): [number, number, number] => {
+        const rect = svgRef.current!.getBoundingClientRect();
+        return [e.clientX - rect.left, e.clientY - rect.top, e.pressure];
+    };
 
-        const ctx = canvas.getContext('2d');
+    const startDrawing = (e: React.PointerEvent<SVGSVGElement>) => {
+        e.currentTarget.setPointerCapture(e.pointerId);
+        currentStroke.current = [getPoint(e.nativeEvent)];
+        forceUpdate(n => n + 1);
+    };
 
-        if (!ctx) return;
-
-        const resizeCanvas = () => {
-            const rect = canvas.getBoundingClientRect();
-            canvas.width = rect.width;
-            canvas.height = rect.height;
-            ctx.strokeStyle = "#333";
-            ctx.lineWidth = 3;
-            ctx.lineCap = "round";
-            ctx.fillStyle = "#fff";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-        };
-
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
-        return () => window.removeEventListener('resize', resizeCanvas);
-    }, []);
-
-    const isDrawing = useRef(false); // ← ref, not state
-
-    const getCoords = (e: React.MouseEvent | React.TouchEvent, rect: DOMRect) => {
-        if ('touches' in e) {
-            return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
+    const draw = (e: React.PointerEvent<SVGSVGElement>) => {
+        if (!currentStroke.current.length) return;
+        const events = e.nativeEvent.getCoalescedEvents?.() ?? [e.nativeEvent];
+        for (const ce of events) {
+            currentStroke.current.push(getPoint(ce));
         }
-        return { x: e.clientX - rect.left, y: e.clientY - rect.top };
-    };
-
-    const startDrawing = (e: React.MouseEvent | React.TouchEvent) => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-
-        isDrawing.current = true;                          // instant, no async gap
-
-        const { x, y } = getCoords(e, canvas.getBoundingClientRect());
-        ctx.beginPath();
-        ctx.moveTo(x, y);                                  // path starts exactly here
-    };
-
-    const draw = (e: React.MouseEvent | React.TouchEvent) => {
-        if (!isDrawing.current) return;                    // ref check, always current
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-
-        const { x, y } = getCoords(e, canvas.getBoundingClientRect());
-        ctx.lineTo(x, y);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(x, y);
+        forceUpdate(n => n + 1);
     };
 
     const stopDrawing = () => {
-        isDrawing.current = false;
-        const canvas = canvasRef.current;
-        if (canvas) canvas.getContext('2d')?.beginPath();
+        const points = [...currentStroke.current];
+        if (!points.length) return;
+        currentStroke.current = [];
+        setStrokes(prev => [...prev, points]);
+        forceUpdate(n => n + 1);
     };
 
-    // BACKUP BELLOW
-    // const startDrawing = (e: React.MouseEvent | React.TouchEvent) => {
-    //     setIsDrawing(true);
-    //     draw(e);
-    // };
-
-    // const stopDrawing = () => {
-    //     setIsDrawing(false);
-    //     const canvas = canvasRef.current;
-    //     if (canvas) {
-    //         const ctx = canvas.getContext('2d');
-    //         ctx?.beginPath();
-    //     }
-    // };
-
-    // const draw = (e: React.MouseEvent | React.TouchEvent) => {
-    //     if (!isDrawing) return;
-    //     const canvas = canvasRef.current;
-    //     if (!canvas) return;
-    //     const ctx = canvas.getContext('2d');
-    //     if (!ctx) return;
-
-    //     const rect = canvas.getBoundingClientRect();
-    //     let clientX, clientY;
-
-    //     if ('touches' in e) {
-    //         clientX = e.touches[0].clientX;
-    //         clientY = e.touches[0].clientY;
-    //     } else {
-    //         clientX = e.clientX;
-    //         clientY = e.clientY;
-    //     }
-
-    //     const x = clientX - rect.left;
-    //     const y = clientY - rect.top;
-
-    //     ctx.lineTo(x, y);
-    //     ctx.stroke();
-    //     ctx.beginPath();
-    //     ctx.moveTo(x, y);
-    // };
-
     const clearCanvas = () => {
-        const canvas = canvasRef.current
-        const ctx = canvas?.getContext("2d");
+        setStrokes([]);
+        currentStroke.current = [];
+        forceUpdate(n => n + 1);
+    };
 
-        if (!canvas || !ctx) return;
+    const handleNextCardEmit = () => { clearCanvas(); nextCard(); };
+    const handleClickShuffle = () => { clearCanvas(); shuffleDeck(); };
 
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = "#fff";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
-
-    const handleNextCardEmit = () => {
-        clearCanvas()
-        nextCard()
-    }
-
-    const handleClickShuffle = () => {
-        clearCanvas()
-        shuffleDeck()
-    }
+    const strokeOptions = { size: 6, thinning: 0.5, smoothing: 0.5, streamline: 0.5 };
 
     return (
         <div className="w-full space-y-2">
-            <div className={`
-                flex items-center 
-                mb-6 gap-x-2 
-
-                ${children && 'justify-evenly'}`
-            }>
+            <div className={`flex items-center mb-6 gap-x-2 ${children && 'justify-evenly'}`}>
                 <Button size='sm' className='w-1/5 bg-transparent' variant="outline" onClick={clearCanvas}>
                     <Eraser />
                 </Button>
-
                 <Button className='w-1/5' variant="outline" title='shuffle' size='sm' onClick={handleClickShuffle}>
                     <Shuffle />
                 </Button>
-
                 {children}
-
                 <Button className='w-1/5' size='sm' onClick={handleNextCardEmit}>
                     Next
                 </Button>
             </div>
 
             <div className="border-2 border-dashed border-muted rounded-xl overflow-hidden bg-white">
-                {/* onPointerDown={draw} */}
-                <canvas
-                    ref={canvasRef}
-                    onMouseDown={startDrawing}
+                <svg
+                    ref={svgRef}
                     onPointerDown={startDrawing}
-                    onMouseMove={draw}
-                    onMouseUp={stopDrawing}
+                    onPointerMove={draw}
                     onPointerUp={stopDrawing}
-                    onMouseLeave={stopDrawing}
-                    onTouchStart={startDrawing}
-                    onTouchMove={draw}
-                    onTouchEnd={stopDrawing}
-                    className="w-full h-[calc(45vh-4rem)] md:h-[calc(70vh-8rem+2px)] touch-none cursor-crosshair"               
-                />
+                    onPointerCancel={stopDrawing}
+                    onPointerLeave={stopDrawing}
+                    style={{ touchAction: 'none', userSelect: 'none', display: 'block' }}
+                    className="w-full h-[calc(45vh-4rem)] md:h-[calc(70vh-8rem+2px)] cursor-crosshair"
+                >
+                    {strokes.map((stroke, i) => (
+                        <path
+                            key={i}
+                            d={getSvgPathFromStroke(getStroke(stroke, strokeOptions))}
+                            fill="#333"
+                        />
+                    ))}
+                    {currentStroke.current.length > 0 && (
+                        <path
+                            d={getSvgPathFromStroke(getStroke(currentStroke.current, strokeOptions))}
+                            fill="#333"
+                        />
+                    )}
+                </svg>
             </div>
         </div>
     );
