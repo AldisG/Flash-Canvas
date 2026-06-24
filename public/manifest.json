@@ -2,7 +2,7 @@
   "name": "Flash Cards",
   "short_name": "Flash Cards",
   "description": "Language practice flashcards tool",
-  "start_url": ".",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#6366F1",
