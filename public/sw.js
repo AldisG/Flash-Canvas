@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lingoflow-v1';
+const CACHE_NAME = 'flashCards-v1';
 const ASSETS = [
   '/',
   '/index.html',

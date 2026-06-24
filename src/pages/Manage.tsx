@@ -67,7 +67,7 @@ const Manage = () => {
                     <Button variant="outline" onClick={() => setIsAdding(!isAdding)}>
                         <>
                         {isAdding ? <X className="text-xxl" /> : <Plus className="text-xxl" />}
-                        <span className='hidden ml-2 sm:block'>
+                        <span className='hidden sm:block'>
                             {isAdding ? "Cancel" : "Add Card"}
                         </span>
                         </>
