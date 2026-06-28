@@ -18,6 +18,7 @@ const Manage = () => {
 
     const [newCard, setNewCard] = useState({ word: '', meaning: '', context: '' });
     const [editCard, setEditCard] = useState<CardModel | null>(null);
+    const [filteredCards, setfilteredCards] = useState<CardModel[] | []>([])
 
     const handleAdd = () => {
         if (newCard.word && newCard.meaning) {
@@ -50,11 +51,27 @@ const Manage = () => {
         setSelectedIds([]);
     }
 
+    // Add pagination 
+
     const handleWriteSearchWords = (target: EventTarget & HTMLInputElement) => {
         const value = target.value
         setsearchedWord(value)
+
+        handleFilterOutSearchedCards() 
     }
 
+    const handleFilterOutSearchedCards = () => {
+        const cleanSearchWord = searchedWord.trim()
+        const filteredCardsList = cards.filter((card: CardModel) => {
+            return card.context.includes(cleanSearchWord) ||
+                card.meaning.includes(cleanSearchWord) ||
+                card.word.includes(cleanSearchWord)
+        })
+
+        setfilteredCards(filteredCardsList)
+    }
+
+    const cardsToDisplay = searchedWord.length ? filteredCards : cards
     const displayCards: boolean = cards.length !== 0
 
     return (
@@ -130,12 +147,16 @@ const Manage = () => {
                     onChange={(e) =>handleWriteSearchWords(e.target)}
                     placeholder="Search words..."
                 />
+
+                <Button variant='secondary' onClick={() => setsearchedWord('')}>
+                    Clear Search
+                </Button>
             </div>
 
             <div className="space-y-4 mb-4 w-full">
                 {displayCards ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-2 gap-y-4">
-                        {cards.map(card => (
+                        {cardsToDisplay.map(card => (
                             <Card 
                                 key={card.id} 
                                 className={`h-fit ${selectedIds.includes(card.id) ? "bg-red-100" : ""}`}
