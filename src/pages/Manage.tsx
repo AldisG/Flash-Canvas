@@ -11,9 +11,10 @@ import ContentWrapper from '@/components/ContentWrapper';
 
 const Manage = () => {
     const { cards, addCard, updateCard, deleteCard, deleteMultipleCards } = useCards();
-    const [isAdding, setIsAdding] = useState(false);
+    const [isAdding, setIsAdding] = useState(true);
     const [isEditing, setIsEditing] = useState<string | null>(null);
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
+    const [searchedWord, setsearchedWord] = useState<string>('');
 
     const [newCard, setNewCard] = useState({ word: '', meaning: '', context: '' });
     const [editCard, setEditCard] = useState<CardModel | null>(null);
@@ -22,7 +23,6 @@ const Manage = () => {
         if (newCard.word && newCard.meaning) {
             addCard(newCard);
             setNewCard({ word: '', meaning: '', context: '' });
-            setIsAdding(false);
         }
     };
 
@@ -50,6 +50,11 @@ const Manage = () => {
         setSelectedIds([]);
     }
 
+    const handleWriteSearchWords = (target: EventTarget & HTMLInputElement) => {
+        const value = target.value
+        setsearchedWord(value)
+    }
+
     const displayCards: boolean = cards.length !== 0
 
     return (
@@ -68,7 +73,7 @@ const Manage = () => {
                         <>
                         {isAdding ? <X className="text-xxl" /> : <Plus className="text-xxl" />}
                         <span className='hidden sm:block'>
-                            {isAdding ? "Cancel" : "Add Card"}
+                            {isAdding ? "Hide Form" : "Show Form"}
                         </span>
                         </>
                     </Button>
@@ -114,12 +119,18 @@ const Manage = () => {
                             </div>
                         </div>
                         <div className="flex justify-end space-x-2 pt-2">
-                            <Button variant="secondary" onClick={() => setIsAdding(false)}>Cancel</Button>
                             <Button variant="secondary" className='text-slate-900 bg-lime-600 hover:bg-lime-500' onClick={handleAdd}>Add Card</Button>
                         </div>
                     </CardContent>
                 </Card>
             )}
+            <div className='mb-6 flex justify-start gap-x-2 w-full md:w-1/3 md:self-start opacity-80'>
+                <Input
+                    value={searchedWord}
+                    onChange={(e) =>handleWriteSearchWords(e.target)}
+                    placeholder="Search words..."
+                />
+            </div>
 
             <div className="space-y-4 mb-4 w-full">
                 {displayCards ? (

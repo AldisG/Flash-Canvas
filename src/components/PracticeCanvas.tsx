@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Eraser, Shuffle } from "lucide-react";
+import { Eraser, Shuffle, PenLine, Hand } from "lucide-react";
 import { getStroke } from 'perfect-freehand';
 
 type Props = {
@@ -28,13 +28,26 @@ const PracticeCanvas = ({ nextCard, children, shuffleDeck }: Props) => {
     const [strokes, setStrokes] = useState<number[][][]>([]);
     const currentStroke = useRef<number[][]>([]);
     const [, forceUpdate] = useState(0);
+    const [penOnly, setPenOnly] = useState(true); // pen-only ON by default
+
+    const isAllowedInput = (e: PointerEvent | React.PointerEvent<SVGSVGElement>): boolean => {
+        if (!penOnly) return true;
+        // "pen" = stylus, "mouse" = mouse (fine to allow), "touch" = finger or palm
+        return e.pointerType === 'pen' || e.pointerType === 'mouse';
+    };
 
     const getPoint = (e: PointerEvent): [number, number, number] => {
         const rect = svgRef.current!.getBoundingClientRect();
-        return [e.clientX - rect.left, e.clientY - rect.top, e.pressure];
+        const rawPressure = e.pressure ?? 0.5;
+        const MIN_PRESSURE = 0.02;
+        const boostedPressure = rawPressure < MIN_PRESSURE
+            ? 0
+            : Math.min(1, 0.3 + rawPressure * 0.9);
+        return [e.clientX - rect.left, e.clientY - rect.top, boostedPressure];
     };
 
     const startDrawing = (e: React.PointerEvent<SVGSVGElement>) => {
+        if (!isAllowedInput(e)) return;
         e.currentTarget.setPointerCapture(e.pointerId);
         currentStroke.current = [getPoint(e.nativeEvent)];
         forceUpdate(n => n + 1);
@@ -42,6 +55,7 @@ const PracticeCanvas = ({ nextCard, children, shuffleDeck }: Props) => {
 
     const draw = (e: React.PointerEvent<SVGSVGElement>) => {
         if (!currentStroke.current.length) return;
+        if (!isAllowedInput(e)) return;
         const events = e.nativeEvent.getCoalescedEvents?.() ?? [e.nativeEvent];
         for (const ce of events) {
             currentStroke.current.push(getPoint(ce));
@@ -49,11 +63,11 @@ const PracticeCanvas = ({ nextCard, children, shuffleDeck }: Props) => {
         forceUpdate(n => n + 1);
     };
 
-    const stopDrawing = () => {
-        const points = [...currentStroke.current];
+    const stopDrawing = (e: React.PointerEvent<SVGSVGElement>) => {
+        const points = [...currentStroke.current]; // capture first
         if (!points.length) return;
-        currentStroke.current = [];
-        setStrokes(prev => [...prev, points]);
+        currentStroke.current = [];               // then clear
+        setStrokes(prev => [...prev, points]);    // save captured points
         forceUpdate(n => n + 1);
     };
 
@@ -76,6 +90,15 @@ const PracticeCanvas = ({ nextCard, children, shuffleDeck }: Props) => {
                 </Button>
                 <Button className='w-1/5' variant="outline" title='shuffle' size='sm' onClick={handleClickShuffle}>
                     <Shuffle />
+                </Button>
+                <Button
+                    className='w-1/5'
+                    variant={penOnly ? "default" : "outline"}
+                    title={penOnly ? 'Pen only (tap to allow finger)' : 'Finger allowed (tap for pen only)'}
+                    size='sm'
+                    onClick={() => setPenOnly(p => !p)}
+                >
+                    {penOnly ? <PenLine /> : <Hand />}
                 </Button>
                 {children}
                 <Button className='w-1/5' size='sm' onClick={handleNextCardEmit}>

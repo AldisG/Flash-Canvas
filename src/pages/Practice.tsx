@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useCards, Card as CardType } from "@/hooks/use-cards";
 import PracticeCanvas from "@/components/PracticeCanvas";
-import { RefreshCw, Shuffle, Eye, EyeOff, LucideEye, ScanEye, BookA, Book } from "lucide-react";
+import { Eye, EyeOff, BookA, Book } from "lucide-react";
 import Navigation from '@/components/Navigation';
 import ContentWrapper from '@/components/ContentWrapper';
 import NoCardsFound from './NoCardsFound';
@@ -83,7 +82,12 @@ const Practice = () => {
                                         <BookA />
                                     )}
                                 </Button>
-                                <Button className='w-1/5' title={showMeaning ? "Hide Meaning" : "Show Meaning"} variant="secondary" size='sm' onClick={() => setShowMeaning(!showMeaning)}>
+                                <Button 
+                                    className='w-1/5' 
+                                    title={showMeaning ? "Hide Meaning" : "Show Meaning"} 
+                                    variant="secondary" 
+                                    size='sm' 
+                                    onClick={() => setShowMeaning(!showMeaning)}>
                                     {showMeaning ? <EyeOff /> : <Eye />}
                                 </Button>
                             </>
