@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 interface Props {
     card: Card;
     showMeaning: boolean;
-    showMeaningFirst: boolean;
+    showMeaningFirst: number;
 }
 
 const ANIMATION_DURATION = 100;
@@ -29,7 +29,7 @@ const WordCard: React.FC<Props> = ({ card, showMeaning, showMeaningFirst }) => {
     const wordMeaningWrapperClasses = `text-center
         w-full h-auto p-12 rounded-xl
         md:h-[calc(70vh-4rem)]
-        touch-none cursor-crosshair
+        touch-none
         flex flex-col
         justify-center gap-4
         overflow-auto
@@ -43,20 +43,51 @@ const WordCard: React.FC<Props> = ({ card, showMeaning, showMeaningFirst }) => {
         : 'animate-out fade-out slide-in-from-bottom-2'
     }`
 
+    const handleMeaningDisplayLogic = () => {
+        switch  (showMeaningFirst) {
+            case 0:
+                return {
+                        first: card?.word ?? '',
+                        second: card?.meaning ?? '',
+                        third: card?.context ?? '',
+                    }
+            case 1:
+                return {
+                        second: card?.word ?? '',
+                        first: card?.meaning ?? '',
+                        third: card?.context ?? '',
+                    }
+            case 2:
+                return {
+                        third: card?.word ?? '',
+                        first: card?.meaning ?? '',
+                        second: card?.context ?? '',
+                    }
+            default:
+                return {
+                        first: card?.word ?? '',
+                        second: card?.meaning ?? '',
+                        third: card?.context ?? '',
+                    }
+        }
+    }
+
+    const {first, second, third} = handleMeaningDisplayLogic()
+
     return (
         <div className={wordMeaningWrapperClasses}>
             {card && (
                 <>
-                    <div className="text-4xl font-bold content-center">{showMeaningFirst ? card.meaning : card.word}</div>
+                    <div className="text-4xl md:text-6xl font-bold content-center">{first}</div>
 
                     <div className={`w-full flex flex-col justify-center ${handleMeaningAnimation}`}>
-                        <div className="text-2xl text-primary font-medium">
-                            {showMeaningFirst ? card.word : card.meaning }
+                        <div className="text-2xl md:text-4xl text-primary font-medium">
+                            { second }
                         </div>
 
-                        {card.context && (
-                            <div className="text-xl font-medium text-slate-600">
-                                {card.context}
+                        {third && (
+                            <div className="text-lg mt-4 md:text-xl font-medium text-slate-600">
+                                {third}
                             </div>
                         )}
                     </div>

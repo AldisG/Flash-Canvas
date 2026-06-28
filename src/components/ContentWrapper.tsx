@@ -4,7 +4,7 @@ type Props = {
 
 const ContentWrapper = ({children}: Props) => {
     return (
-        <div className="min-h-screen items-center flex flex-col bg-slate-500 px-8">
+        <div className="min-h-screen items-center flex flex-col bg-slate-800 px-8">
             {children}
         </div>
     )

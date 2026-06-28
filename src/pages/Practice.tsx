@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { useCards, Card as CardType } from "@/hooks/use-cards";
 import PracticeCanvas from "@/components/PracticeCanvas";
-import { Eye, EyeOff, BookA, Book } from "lucide-react";
+import { Eye, EyeOff, BookA, BookAudio, Text } from "lucide-react";
 import Navigation from '@/components/Navigation';
 import ContentWrapper from '@/components/ContentWrapper';
 import NoCardsFound from './NoCardsFound';
@@ -13,7 +13,7 @@ const Practice = () => {
     const [currentIndex, setCurrentIndex] = useState<number>(-1);
     const [showMeaning, setShowMeaning] = useState(false);
     const [deck, setDeck] = useState<number[]>([]);
-    const [showMeaningFirst, setshowMeaningFirst] = useState(false);
+    const [showMeaningFirst, setshowMeaningFirst] = useState(0);
 
     useEffect(() => {
         if (isLoaded && cards.length > 0) {
@@ -43,8 +43,19 @@ const Practice = () => {
     };
 
     const toggleShowMeaningFirst = () => {
-        setshowMeaningFirst(!showMeaningFirst)
+        if (showMeaningFirst < 2) {
+            setshowMeaningFirst(showMeaningFirst + 1)
+        }
+        else {
+            setshowMeaningFirst(0)
+        }
     }
+    
+    const CorrectIcon = [
+        <BookA />,
+        <BookAudio />,
+        <Text />,
+    ]
 
     const currentCard = deck[currentIndex] !== undefined ? cards[deck[currentIndex]] : null;
 
@@ -70,17 +81,13 @@ const Practice = () => {
                     <div className='grid gap-y-4'>
                         <PracticeCanvas nextCard={nextCard} shuffleDeck={shuffleDeck}>
                             <>
+                            {/* title={showMeaningFirst ? 'Show Meaning' : 'Show Word'} */}
                                 <Button className='w-1/5'
                                     variant='outline'
-                                    title={showMeaningFirst ? 'Show Meaning' : 'Show Word'}
                                     aria-label='Switch Places Meaning and Word'
                                     onClick={toggleShowMeaningFirst}
                                     size='sm'>
-                                    {showMeaningFirst ? (
-                                        <Book />
-                                    ) : (
-                                        <BookA />
-                                    )}
+                                        {CorrectIcon[showMeaningFirst]}
                                 </Button>
                                 <Button 
                                     className='w-1/5' 

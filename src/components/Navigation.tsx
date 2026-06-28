@@ -16,14 +16,14 @@ const Navigation = ({ isBar }: NavigationProps) => {
             {isBar ? (
                 <div className="flex gap-x-4">
                     <Button
-                        variant="default"
-                        className={`px-2 py-1 text-sm shadow-md ${pathname == '/practice' && 'bg-cyan-800'}`}
+                        variant="outline" 
+                        className={`px-2 py-1 text-sm text-white shadow-md bg-transparent active:bg-sky-700 ${pathname == '/practice' && 'bg-sky-700'}`}
                         onClick={() => { navigate('/practice') }}>
                         Practice
                     </Button>
                     <Button
-                        variant="default"
-                        className={`px-2 py-1 text-sm shadow-md ${pathname == '/manage' && 'bg-cyan-800'}`}
+                        variant="outline"
+                        className={`px-2 py-1 text-sm text-white shadow-md bg-transparent active:bg-sky-700 ${pathname == '/manage' && 'bg-sky-700'}`}
                         onClick={() => navigate('/manage')}>
                         Manage Cards
                     </Button>

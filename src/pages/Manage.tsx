@@ -51,7 +51,7 @@ const Manage = () => {
         setSelectedIds([]);
     }
 
-    // Add pagination 
+    // TODO: Add pagination 
 
     const handleWriteSearchWords = (target: EventTarget & HTMLInputElement) => {
         const value = target.value
@@ -78,15 +78,15 @@ const Manage = () => {
         <ContentWrapper>
             <Navigation isBar />
 
-            <div className="flex justify-between items-center w-full mb-4">
-                <h1 className="text-3xl font-bold text-primary">Manage Cards</h1>
+            <div className="flex gap-x-2 justify-between items-center w-full mb-4">
+                <h1 className="text-3xl font-bold text-white">Manage Cards</h1>
 
-                <div className="gap-2 flex flex-col content-between sm:flex-row">
+                <div className="flex gap-x-2 content-between">
                     <Button disabled={!selectedIds.length} variant="destructive" onClick={handleDeleteSelectedCards}>
                         {selectedIds.length ? 'Delete Selected' : '0 Selected'}
                     </Button>
 
-                    <Button variant="outline" onClick={() => setIsAdding(!isAdding)}>
+                    <Button variant="outline" className='w-10 sm:w-auto' onClick={() => setIsAdding(!isAdding)}>
                         <>
                         {isAdding ? <X className="text-xxl" /> : <Plus className="text-xxl" />}
                         <span className='hidden sm:block'>
@@ -136,17 +136,19 @@ const Manage = () => {
                             </div>
                         </div>
                         <div className="flex justify-end space-x-2 pt-2">
-                            <Button variant="secondary" className='text-slate-900 bg-lime-600 hover:bg-lime-500' onClick={handleAdd}>Add Card</Button>
+                            <Button variant="secondary" className=' bg-sky-600 hover:bg-sky-500 text-white' onClick={handleAdd}>Add Card</Button>
                         </div>
                     </CardContent>
                 </Card>
             )}
-            <div className='mb-6 flex justify-start gap-x-2 w-full md:w-1/3 md:self-start opacity-80'>
-                <Input
-                    value={searchedWord}
-                    onChange={(e) =>handleWriteSearchWords(e.target)}
-                    placeholder="Search words..."
-                />
+            <div className='mb-6 w-full flex justify-start gap-x-4 md:self-start opacity-80'>
+                <div className='flex w-full md:w-[65.5%]'>
+                    <Input
+                        value={searchedWord}
+                        onChange={(e) =>handleWriteSearchWords(e.target)}
+                        placeholder="Search words..."
+                        />
+                </div>
 
                 <Button variant='secondary' onClick={() => setsearchedWord('')}>
                     Clear Search
@@ -166,7 +168,7 @@ const Manage = () => {
                                     
                                     <div className="flex flex-col lg:flex-row gap-2">
                                         <div className="font-bold text-xl">{card.word}</div>
-                                        <div>
+                                        <div className='md:mt-1'>
                                             <div className="text-sm">{card.meaning}</div>
                                             <div className="text-sm text-muted-foreground italic">{card.context}</div>
                                         </div>

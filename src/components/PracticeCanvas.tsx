@@ -9,7 +9,7 @@ type Props = {
     shuffleDeck: Function;
 }
 
-function getSvgPathFromStroke(stroke: number[][]): string {
+const getSvgPathFromStroke = (stroke: number[][]): string => {
     if (!stroke.length) return '';
     const d = stroke.reduce(
         (acc: (string | number)[], [x0, y0], i, arr) => {
@@ -27,12 +27,12 @@ const PracticeCanvas = ({ nextCard, children, shuffleDeck }: Props) => {
     const svgRef = useRef<SVGSVGElement>(null);
     const [strokes, setStrokes] = useState<number[][][]>([]);
     const currentStroke = useRef<number[][]>([]);
+    const activePointerId = useRef<number | null>(null);
     const [, forceUpdate] = useState(0);
-    const [penOnly, setPenOnly] = useState(true); // pen-only ON by default
+    const [penOnly, setPenOnly] = useState(true);
 
     const isAllowedInput = (e: PointerEvent | React.PointerEvent<SVGSVGElement>): boolean => {
         if (!penOnly) return true;
-        // "pen" = stylus, "mouse" = mouse (fine to allow), "touch" = finger or palm
         return e.pointerType === 'pen' || e.pointerType === 'mouse';
     };
 
@@ -48,14 +48,16 @@ const PracticeCanvas = ({ nextCard, children, shuffleDeck }: Props) => {
 
     const startDrawing = (e: React.PointerEvent<SVGSVGElement>) => {
         if (!isAllowedInput(e)) return;
+        if (activePointerId.current !== null) return;
+        activePointerId.current = e.pointerId;
         e.currentTarget.setPointerCapture(e.pointerId);
         currentStroke.current = [getPoint(e.nativeEvent)];
         forceUpdate(n => n + 1);
     };
 
     const draw = (e: React.PointerEvent<SVGSVGElement>) => {
+        if (e.pointerId !== activePointerId.current) return;
         if (!currentStroke.current.length) return;
-        if (!isAllowedInput(e)) return;
         const events = e.nativeEvent.getCoalescedEvents?.() ?? [e.nativeEvent];
         for (const ce of events) {
             currentStroke.current.push(getPoint(ce));
@@ -64,10 +66,12 @@ const PracticeCanvas = ({ nextCard, children, shuffleDeck }: Props) => {
     };
 
     const stopDrawing = (e: React.PointerEvent<SVGSVGElement>) => {
-        const points = [...currentStroke.current]; // capture first
+        if (e.pointerId !== activePointerId.current) return;
+        const points = [...currentStroke.current];
+        activePointerId.current = null;
         if (!points.length) return;
-        currentStroke.current = [];               // then clear
-        setStrokes(prev => [...prev, points]);    // save captured points
+        currentStroke.current = [];
+        setStrokes(prev => [...prev, points]);
         forceUpdate(n => n + 1);
     };
 
@@ -77,23 +81,39 @@ const PracticeCanvas = ({ nextCard, children, shuffleDeck }: Props) => {
         forceUpdate(n => n + 1);
     };
 
-    const handleNextCardEmit = () => { clearCanvas(); nextCard(); };
-    const handleClickShuffle = () => { clearCanvas(); shuffleDeck(); };
+    const handleNextCardEmit = () => { 
+        clearCanvas(); 
+        nextCard(); 
+    };
+
+    const handleClickShuffle = () => { 
+        clearCanvas(); 
+        shuffleDeck(); 
+    };
 
     const strokeOptions = { size: 6, thinning: 0.5, smoothing: 0.5, streamline: 0.5 };
 
     return (
         <div className="w-full space-y-2">
             <div className={`flex items-center mb-6 gap-x-2 ${children && 'justify-evenly'}`}>
-                <Button size='sm' className='w-1/5 bg-transparent' variant="outline" onClick={clearCanvas}>
+                <Button 
+                    size='sm' 
+                    className='w-1/5 bg-transparent text-white' 
+                    variant="outline" 
+                    onClick={clearCanvas}>
                     <Eraser />
                 </Button>
-                <Button className='w-1/5' variant="outline" title='shuffle' size='sm' onClick={handleClickShuffle}>
+                <Button 
+                    className='w-1/5' 
+                    variant="outline" 
+                    title='shuffle' 
+                    size='sm' 
+                    onClick={handleClickShuffle}>
                     <Shuffle />
                 </Button>
                 <Button
-                    className='w-1/5'
-                    variant={penOnly ? "default" : "outline"}
+                    className='w-1/5 bg-transparent text-white'
+                    variant="outline"
                     title={penOnly ? 'Pen only (tap to allow finger)' : 'Finger allowed (tap for pen only)'}
                     size='sm'
                     onClick={() => setPenOnly(p => !p)}
@@ -101,7 +121,12 @@ const PracticeCanvas = ({ nextCard, children, shuffleDeck }: Props) => {
                     {penOnly ? <PenLine /> : <Hand />}
                 </Button>
                 {children}
-                <Button className='w-1/5' size='sm' onClick={handleNextCardEmit}>
+                <Button 
+                    className='w-1/5 bg-sky-600 text-white' 
+                    variant="outline" 
+                    size='sm' 
+                    title="Next Word"
+                    onClick={handleNextCardEmit}>
                     Next
                 </Button>
             </div>
