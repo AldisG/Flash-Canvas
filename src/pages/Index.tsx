@@ -11,6 +11,10 @@ const Index = () => {
         </div>
 
         <Navigation />
+
+        <div className="grid gap-x4 text-slate-300">
+          Write your cards, their meaning, practice writing and remembering them!
+        </div>
       </div>
     </ContentWrapper>
   );

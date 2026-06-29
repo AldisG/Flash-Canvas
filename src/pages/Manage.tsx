@@ -144,7 +144,7 @@ const Manage = () => {
                         placeholder="Search words..."
                     />
 
-                    <Button className='w-10 sm:w-auto' variant='secondary' onClick={() => { setsearchedWord(''); setCurrentPage(1); }}>
+                    <Button disabled={!searchedWord} className='w-10 sm:w-auto bg-transparent text-white' variant='outline' onClick={() => { setsearchedWord(''); setCurrentPage(1); }}>
                         <Brush />
                         <span className='hidden sm:block'>Clear</span>
                     </Button>
