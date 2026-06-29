@@ -186,14 +186,14 @@ const Manage = () => {
                                     <Checkbox checked={selectedIds.includes(card.id)} onCheckedChange={() => toggleSelect(card.id)} />
 
                                     <div className="flex flex-col lg:flex-row gap-2">
-                                        <div className="font-bold text-xl">{card.word}</div>
+                                        <div className="font-bold text-xl break-words">{card.word}</div>
                                         <div className='md:mt-1'>
-                                            <div className="text-sm">{card.meaning}</div>
-                                            <div className="text-sm text-muted-foreground italic">{card.context}</div>
+                                            <div className="text-sm break-words">{card.meaning}</div>
+                                            <div className="text-sm text-muted-foreground italic break-words">{card.context}</div>
                                         </div>
                                     </div>
 
-                                    <div className="flex gap-2">
+                                    <div className="grid gap-2">
                                         {isEditing === card.id ? (
                                             <>
                                                 <Button size="icon" variant="outline" onClick={handleEditSave}>
