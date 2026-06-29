@@ -5,9 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Trash2, Edit2, Save, X, Trash } from "lucide-react";
+import { Plus, Trash2, Edit2, Save, X, ChevronLeft, ChevronRight, Brush } from "lucide-react";
 import Navigation from '@/components/Navigation';
 import ContentWrapper from '@/components/ContentWrapper';
+
+const ITEMS_PER_PAGE = 20;
 
 const Manage = () => {
     const { cards, addCard, updateCard, deleteCard, deleteMultipleCards } = useCards();
@@ -15,10 +17,11 @@ const Manage = () => {
     const [isEditing, setIsEditing] = useState<string | null>(null);
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
     const [searchedWord, setsearchedWord] = useState<string>('');
+    const [currentPage, setCurrentPage] = useState(1);
 
     const [newCard, setNewCard] = useState({ word: '', meaning: '', context: '' });
     const [editCard, setEditCard] = useState<CardModel | null>(null);
-    const [filteredCards, setfilteredCards] = useState<CardModel[] | []>([])
+    const [filteredCards, setfilteredCards] = useState<CardModel[]>([]);
 
     const handleAdd = () => {
         if (newCard.word && newCard.meaning) {
@@ -47,32 +50,29 @@ const Manage = () => {
     };
 
     const handleDeleteSelectedCards = () => {
-        deleteMultipleCards(selectedIds); 
+        deleteMultipleCards(selectedIds);
         setSelectedIds([]);
-    }
-
-    // TODO: Add pagination 
+    };
 
     const handleWriteSearchWords = (target: EventTarget & HTMLInputElement) => {
-        const value = target.value
-        setsearchedWord(value)
+        const value = target.value;
+        setsearchedWord(value);
+        setCurrentPage(1); // reset to page 1 on search
 
-        handleFilterOutSearchedCards() 
-    }
+        const cleanSearchWord = value.trim();
+        const filteredCardsList = cards.filter((card: CardModel) =>
+            card.context.includes(cleanSearchWord) ||
+            card.meaning.includes(cleanSearchWord) ||
+            card.word.includes(cleanSearchWord)
+        );
+        setfilteredCards(filteredCardsList);
+    };
 
-    const handleFilterOutSearchedCards = () => {
-        const cleanSearchWord = searchedWord.trim()
-        const filteredCardsList = cards.filter((card: CardModel) => {
-            return card.context.includes(cleanSearchWord) ||
-                card.meaning.includes(cleanSearchWord) ||
-                card.word.includes(cleanSearchWord)
-        })
-
-        setfilteredCards(filteredCardsList)
-    }
-
-    const cardsToDisplay = searchedWord.length ? filteredCards : cards
-    const displayCards: boolean = cards.length !== 0
+    const allCards = searchedWord.length ? filteredCards : cards;
+    const totalPages = Math.max(1, Math.ceil(allCards.length / ITEMS_PER_PAGE));
+    const safePage = Math.min(currentPage, totalPages);
+    const cardsToDisplay = allCards.slice((safePage - 1) * ITEMS_PER_PAGE, safePage * ITEMS_PER_PAGE);
+    const displayCards = cards.length !== 0;
 
     return (
         <ContentWrapper>
@@ -88,18 +88,12 @@ const Manage = () => {
 
                     <Button variant="outline" className='w-10 sm:w-auto' onClick={() => setIsAdding(!isAdding)}>
                         <>
-                        {isAdding ? <X className="text-xxl" /> : <Plus className="text-xxl" />}
-                        <span className='hidden sm:block'>
-                            {isAdding ? "Hide Form" : "Show Form"}
-                        </span>
+                            {isAdding ? <X className="text-xxl" /> : <Plus className="text-xxl" />}
+                            <span className='hidden sm:block'>
+                                {isAdding ? "Hide Form" : "Show Form"}
+                            </span>
                         </>
                     </Button>
-                    {/* <Button variant="destructive" onClick={}>
-                        <Trash />
-                        <span className='hidden ml-2 sm:visible'>
-                            Clear All
-                        </span>
-                    </Button> */}
                 </div>
             </div>
 
@@ -136,36 +130,61 @@ const Manage = () => {
                             </div>
                         </div>
                         <div className="flex justify-end space-x-2 pt-2">
-                            <Button variant="secondary" className=' bg-sky-600 hover:bg-sky-500 text-white' onClick={handleAdd}>Add Card</Button>
+                            <Button variant="secondary" className='bg-sky-600 hover:bg-sky-500 text-white' onClick={handleAdd}>Add Card</Button>
                         </div>
                     </CardContent>
                 </Card>
             )}
-            <div className='mb-6 w-full flex justify-start gap-x-4 md:self-start opacity-80'>
-                <div className='flex w-full md:w-[65.5%]'>
+
+            <div className='mb-6 w-full flex justify-between items-center gap-x-2 sm:gap-x-4'>
+                <div className='flex w-full gap-x-2 sm:gap-x-4 md:w-[66%]'>
                     <Input
                         value={searchedWord}
-                        onChange={(e) =>handleWriteSearchWords(e.target)}
+                        onChange={(e) => handleWriteSearchWords(e.target)}
                         placeholder="Search words..."
-                        />
+                    />
+
+                    <Button className='w-10 sm:w-auto' variant='secondary' onClick={() => { setsearchedWord(''); setCurrentPage(1); }}>
+                        <Brush />
+                        <span className='hidden sm:block'>Clear</span>
+                    </Button>
                 </div>
 
-                <Button variant='secondary' onClick={() => setsearchedWord('')}>
-                    Clear Search
-                </Button>
+                {/* Pagination controls */}
+                <div className='flex items-center gap-x-2 shrink-0'>
+                    <Button
+                        variant='outline'
+                        size='icon'
+                        onClick={() => setCurrentPage(p => p - 1)}
+                        disabled={safePage <= 1}
+                    >
+                        <ChevronLeft className='w-4 h-4' />
+                    </Button>
+                    <span className='text-white text-sm whitespace-nowrap'>
+                        {safePage} / {totalPages}
+                    </span>
+                    <Button
+                        variant='outline'
+                        size='icon'
+                        onClick={() => setCurrentPage(p => p + 1)}
+                        disabled={safePage >= totalPages}
+                    >
+                        <ChevronRight className='w-4 h-4' />
+                    </Button>
+                </div>
             </div>
 
             <div className="space-y-4 mb-4 w-full">
                 {displayCards ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-2 gap-y-4">
                         {cardsToDisplay.map(card => (
-                            <Card 
-                                key={card.id} 
+                            <Card
+                                key={card.id}
                                 className={`h-fit ${selectedIds.includes(card.id) ? "bg-red-100" : ""}`}
                             >
                                 <CardContent className="p-4 grid grid-cols-[auto_1fr_auto] gap-4">
                                     <Checkbox checked={selectedIds.includes(card.id)} onCheckedChange={() => toggleSelect(card.id)} />
-                                    
+
                                     <div className="flex flex-col lg:flex-row gap-2">
                                         <div className="font-bold text-xl">{card.word}</div>
                                         <div className='md:mt-1'>
@@ -217,8 +236,7 @@ const Manage = () => {
                                     </div>
                                 )}
                             </Card>
-                        ))
-                        }
+                        ))}
                     </div>
                 ) : (
                     <div className="text-center bg-slate-400 p-12 h-auto rounded-md">No cards found. Add your first card above!</div>
