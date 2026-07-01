@@ -109,7 +109,7 @@ const Manage = () => {
                                 <Input
                                     value={newCard.word}
                                     onChange={e => setNewCard({ ...newCard, word: e.target.value })}
-                                    placeholder="e.g. Bonjour"
+                                    placeholder="A word..."
                                 />
                             </div>
                             <div className="space-y-2">
@@ -117,7 +117,7 @@ const Manage = () => {
                                 <Input
                                     value={newCard.meaning}
                                     onChange={e => setNewCard({ ...newCard, meaning: e.target.value })}
-                                    placeholder="e.g. Hello"
+                                    placeholder="The meaning..."
                                 />
                             </div>
                             <div className="space-y-2">
@@ -125,7 +125,7 @@ const Manage = () => {
                                 <Input
                                     value={newCard.context}
                                     onChange={e => setNewCard({ ...newCard, context: e.target.value })}
-                                    placeholder="e.g. Bonjour, comment ça va?"
+                                    placeholder="A hint or context"
                                 />
                             </div>
                         </div>
