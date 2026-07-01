@@ -121,7 +121,7 @@ const Manage = () => {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label>Context</Label>
+                                <Label>Context/Hint</Label>
                                 <Input
                                     value={newCard.context}
                                     onChange={e => setNewCard({ ...newCard, context: e.target.value })}
