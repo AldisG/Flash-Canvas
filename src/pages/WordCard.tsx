@@ -59,15 +59,9 @@ const WordCard: React.FC<Props> = ({ card, showMeaning, showMeaningFirst }) => {
                     }
             case 2:
                 return {
-                        third: card?.word ?? '',
-                        first: card?.meaning ?? '',
-                        second: card?.context ?? '',
-                    }
-            default:
-                return {
-                        first: card?.word ?? '',
-                        second: card?.meaning ?? '',
-                        third: card?.context ?? '',
+                        third: card?.meaning ?? '',
+                        second: card?.word ?? '',
+                        first: card?.context ?? '',
                     }
         }
     }

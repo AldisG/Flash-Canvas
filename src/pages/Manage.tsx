@@ -185,7 +185,7 @@ const Manage = () => {
                                 <CardContent className="p-4 grid grid-cols-[auto_1fr_auto] gap-4">
                                     <Checkbox checked={selectedIds.includes(card.id)} onCheckedChange={() => toggleSelect(card.id)} />
 
-                                    <div className="flex flex-col lg:flex-row gap-2">
+                                    <div className="flex flex-col gap-2">
                                         <div className="font-bold text-xl break-words break-all">{card.word}</div>
                                         <div className='md:mt-1'>
                                             <div className="text-sm break-words break-all">{card.meaning}</div>

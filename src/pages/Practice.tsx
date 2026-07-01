@@ -9,11 +9,10 @@ import NoCardsFound from './NoCardsFound';
 import WordCard from './WordCard';
 
 const Practice = () => {
-    const { cards, isLoaded } = useCards();
+    const { cards, isLoaded, saveToggleMode, toggleMode } = useCards();
     const [currentIndex, setCurrentIndex] = useState<number>(-1);
     const [showMeaning, setShowMeaning] = useState(false);
     const [deck, setDeck] = useState<number[]>([]);
-    const [showMeaningFirst, setshowMeaningFirst] = useState(0);
 
     useEffect(() => {
         if (isLoaded && cards.length > 0) {
@@ -43,11 +42,11 @@ const Practice = () => {
     };
 
     const toggleShowMeaningFirst = () => {
-        if (showMeaningFirst < 2) {
-            setshowMeaningFirst(showMeaningFirst + 1)
+        if (toggleMode < 2) {
+            saveToggleMode(toggleMode + 1)
         }
         else {
-            setshowMeaningFirst(0)
+            saveToggleMode(0)
         }
     }
     
@@ -76,18 +75,17 @@ const Practice = () => {
                 (<NoCardsFound />)
                 :
                 (<div className="grid md:grid-cols-2 gap-6 w-full">
-                    <WordCard card={currentCard} showMeaning={showMeaning} showMeaningFirst={showMeaningFirst} />
+                    <WordCard card={currentCard} showMeaning={showMeaning} showMeaningFirst={toggleMode} />
 
                     <div className='grid gap-y-4'>
                         <PracticeCanvas nextCard={nextCard} shuffleDeck={shuffleDeck}>
                             <>
-                            {/* title={showMeaningFirst ? 'Show Meaning' : 'Show Word'} */}
                                 <Button className='w-1/5'
                                     variant='outline'
                                     aria-label='Switch Places Meaning and Word'
                                     onClick={toggleShowMeaningFirst}
                                     size='sm'>
-                                        {CorrectIcon[showMeaningFirst]}
+                                        {CorrectIcon[toggleMode]}
                                 </Button>
                                 <Button 
                                     className='w-1/5' 
